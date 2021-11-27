@@ -3,6 +3,7 @@ defmodule Utilities do
     port = Port.open({:spawn, "clip.exe"}, [])
     Port.command(port, name)
     Port.close(port)
+    name
   end
 
   def get_version() do

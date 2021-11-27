@@ -15,6 +15,15 @@ defmodule Champion.Search do
       HTTPoison.get!(url).body
       |> get_name(name)
       |> Utilities.copy()
+      |> send_name(name)
 
   defp get_name(body, name), do: Poison.decode!(body)["data"][name]["name"]
+
+  defp send_name(translate_name, name),
+    do: %{
+      status: :ok,
+      translate: translate_name,
+      champion: name,
+      copied: "✔",
+    }
 end
