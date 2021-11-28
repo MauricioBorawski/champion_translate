@@ -6,12 +6,6 @@ defmodule Utilities do
 
   def copy({status = :error, name, translated}), do: {status, name, translated}
 
-  defp port_copy(name) do
-    port = Port.open({:spawn, get_action()}, [])
-    Port.command(port, name)
-    Port.close(port)
-  end
-
   def get_version(),
     do:
       HTTPoison.get!("https://ddragon.leagueoflegends.com/api/versions.json").body
@@ -22,6 +16,14 @@ defmodule Utilities do
     name_unicodes = String.codepoints(name)
 
     replace_upcase(name_unicodes, List.first(name_unicodes))
+  end
+
+  # PRIVATE FUNCTIONS
+
+  defp port_copy(name) do
+    port = Port.open({:spawn, get_action()}, [])
+    Port.command(port, name)
+    Port.close(port)
   end
 
   defp replace_upcase(letters, first_letter),

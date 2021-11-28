@@ -8,6 +8,8 @@ defmodule Champion.Search do
         Utilities.parse_champion(name)
       )
 
+  # PRIVATE FUNCTIONS
+
   defp get_champions(url, name),
     do:
       HTTPoison.get!(url)
@@ -18,7 +20,7 @@ defmodule Champion.Search do
   defp get_name(_request = %HTTPoison.Response{body: body, status_code: 200}, name),
     do: {:ok, name, Poison.decode!(body)["data"][name]["name"]}
 
-  defp get_name(_request = %HTTPoison.Response{body: _body, status_code: _code}, name),
+  defp get_name(_request, name),
     do: {:error, name, "Wrong champion name"}
 
   defp send_name({status = :ok, name, translated_name}),
@@ -32,8 +34,7 @@ defmodule Champion.Search do
   defp send_name({status = :error, name, translated_name}),
     do: %{
       status: status,
-      error: translated_name,
-      champion: name,
+      error: %{received: name, message: translated_name},
       copied: "❌"
     }
 end
