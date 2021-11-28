@@ -39,7 +39,7 @@ defmodule Utilities do
   defp to_upcase(letter, _is_upcase), do: String.upcase(letter)
 
   defp get_action() do
-    {os, _} = :os.type()
-    if os == :unix, do: "pbcopy", else: "clip.exe"
+    {_os, osName} = :os.type()
+    if osName == :linux, do: "clip.exe", else: "pbcopy"
   end
 end
