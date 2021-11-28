@@ -1,9 +1,15 @@
 defmodule Utilities do
-  def copy(name) do
-    port = Port.open({:spawn, "clip.exe"}, [])
+  def copy({status = :ok, name, translated}) do
+    port_copy(translated)
+    {status, name, translated}
+  end
+
+  def copy({status = :error, name, translated}), do: {status, name, translated}
+
+  defp port_copy(name) do
+    port = Port.open({:spawn, get_action()}, [])
     Port.command(port, name)
     Port.close(port)
-    name
   end
 
   def get_version(),
@@ -29,4 +35,9 @@ defmodule Utilities do
 
   defp to_upcase(letter, _is_upcase = true), do: letter
   defp to_upcase(letter, _is_upcase), do: String.upcase(letter)
+
+  defp get_action() do
+    {os, _} = :os.type()
+    if os == :unix, do: "pbcopy", else: "clip.exe"
+  end
 end

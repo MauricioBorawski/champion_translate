@@ -4,26 +4,36 @@ defmodule Champion.Search do
   def search_champion(name),
     do:
       get_champions(
-        "https://ddragon.leagueoflegends.com/cdn/#{Utilities.get_version()}/data/ko_KR/champion/#{
-          Utilities.parse_champion(name)
-        }.json",
+        "https://ddragon.leagueoflegends.com/cdn/#{Utilities.get_version()}/data/ko_KR/champion/#{Utilities.parse_champion(name)}.json",
         Utilities.parse_champion(name)
       )
 
   defp get_champions(url, name),
     do:
-      HTTPoison.get!(url).body
+      HTTPoison.get!(url)
       |> get_name(name)
       |> Utilities.copy()
-      |> send_name(name)
+      |> send_name()
 
-  defp get_name(body, name), do: Poison.decode!(body)["data"][name]["name"]
+  defp get_name(_request = %HTTPoison.Response{body: body, status_code: 200}, name),
+    do: {:ok, name, Poison.decode!(body)["data"][name]["name"]}
 
-  defp send_name(translate_name, name),
+  defp get_name(_request = %HTTPoison.Response{body: _body, status_code: _code}, name),
+    do: {:error, name, "Wrong champion name"}
+
+  defp send_name({status = :ok, name, translated_name}),
     do: %{
-      status: :ok,
-      translate: translate_name,
+      status: status,
+      translate: translated_name,
       champion: name,
-      copied: "✔",
+      copied: "✔"
+    }
+
+  defp send_name({status = :error, name, translated_name}),
+    do: %{
+      status: status,
+      error: translated_name,
+      champion: name,
+      copied: "❌"
     }
 end
